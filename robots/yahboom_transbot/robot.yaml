@@ -1,0 +1,128 @@
+# Yahboom Transbot Configuration
+# Hardware manifest for ZettaWare robot development suite generation
+
+robot:
+  name: "Yahboom Transbot"
+  type: "differential_drive"
+  platform: "jetson_nano"
+  description: "Educational robot platform with differential drive, sensors, and manipulator arm"
+
+hardware:
+  motors:
+    type: "dc_motor"
+    count: 2
+    control: "pwm"
+    channels:
+      left: 1
+      right: 2
+    specs:
+      max_rpm: 200
+      stall_current_ma: 1200
+      voltage_nominal: 12.0
+      encoder_resolution: 11  # Pulses per revolution
+
+  sensors:
+    ultrasonic:
+      type: "hc_sr04"
+      count: 1
+      mount: "servo"
+      range_cm: [2, 400]
+      accuracy_cm: 0.3
+
+    camera:
+      type: "csi_camera"
+      resolution: [640, 480]
+      fps: 30
+      auto_exposure: true
+
+    imu:
+      type: "mpu6050"
+      i2c_address: 0x68
+      sample_rate_hz: 100
+      accel_range_g: 2
+      gyro_range_dps: 250
+
+  actuators:
+    arm:
+      type: "mini_servo_arm"
+      servos: 4
+      joints: ["base", "shoulder", "elbow", "gripper"]
+      servo_ids: [7, 8, 9, 10]
+      angle_ranges:
+        base: [0, 180]
+        shoulder: [0, 180]
+        elbow: [0, 180]
+        gripper: [90, 180]
+
+    led_strip:
+      type: "ws2812b"
+      count: 8
+      pin: 18
+      brightness: 0.5
+
+    pan_tilt:
+      type: "servo_mount"
+      servos: 1
+      joints: ["pan"]
+      servo_ids: [6]
+      angle_ranges:
+        pan: [0, 180]
+
+  power:
+    battery:
+      type: "lithium"
+      cells: 3
+      capacity_mah: 2200
+      voltage_nominal: 11.1
+      voltage_min: 9.0
+      voltage_max: 12.6
+      discharge_rate_c: 1.0
+
+# Robot capabilities
+capabilities:
+  - manual_control
+  - autonomous_navigation
+  - arm_manipulation
+  - led_patterns
+  - object_detection
+  - line_following
+  - obstacle_avoidance
+  - voice_control
+
+# Library configuration
+libraries:
+  provided:
+    - name: "Transbot_Lib"
+      path: "lib/Transbot_Lib.py"
+      language: "python"
+      class: "Transbot"
+      description: "Official Yahboom Transbot control library"
+
+# Communication settings
+communication:
+  serial:
+    port: "/dev/ttyTHS1"  # Jetson default, use "COM3" on Windows
+    baudrate: 115200
+    timeout: 1.0
+
+# Safety limits
+safety:
+  max_speed_percent: 80
+  emergency_stop_distance_cm: 15
+  battery_low_voltage: 10.0
+  max_continuous_runtime_min: 30
+
+# Calibration defaults
+calibration:
+  motor_speed_ratio: 1.0  # right/left ratio for straight movement
+  imu_offsets:
+    accel: [0.0, 0.0, 0.0]
+    gyro: [0.0, 0.0, 0.0]
+  ultrasonic_offset_cm: 0.0
+
+# Test configuration
+testing:
+  motor_test_speeds: [20, 40, 60, 80]  # Percent values
+  sensor_test_duration_sec: 5
+  stress_test_duration_min: 10
+  performance_test_distance_cm: 100
