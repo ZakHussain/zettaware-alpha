@@ -1,0 +1,105 @@
+{{ file_header(robot_name_safe + "_hello.py", "Simple hello world for " + robot_name) }}
+
+import time
+from typing import Optional
+
+class {{ robot_name_camel }}Hello:
+    """
+    Simple hello world class for {{ robot_name }}.
+
+    Robot Type: {{ robot_type }}
+    Platform: {{ robot_platform }}
+    Generated: {{ generation_timestamp }}
+    """
+
+    def __init__(self, debug: bool = False):
+        self.robot_name = "{{ robot_name }}"
+        self.robot_type = "{{ robot_type }}"
+        self.debug = debug
+
+        # Hardware capabilities
+        self.has_motors = {{ has_motors | string | title }}
+        self.has_sensors = {{ has_sensors | string | title }}
+        self.has_actuators = {{ has_actuators | string | title }}
+
+        {% if has_motors -%}
+        # Motor configuration
+        self.motor_count = {{ motors.count }}
+        self.motor_type = "{{ motors.type }}"
+        {% endif -%}
+
+        {% if has_sensors %}
+        # Available sensors
+        self.sensors = [
+        {% for sensor_name, sensor in sensors.items() %}
+            "{{ sensor_name }}",  # {{ sensor.type }}
+        {% endfor %}
+        ]
+        {% endif %}
+
+        {% if capabilities %}
+        # Robot capabilities
+        self.capabilities = [
+        {% for capability in capabilities %}
+            "{{ capability }}",
+        {% endfor %}
+        ]
+        {% endif %}
+
+        if self.debug:
+            print(f"Initialized {{ robot_name }} hello world class")
+
+    def say_hello(self) -> str:
+        """Generate a hello message from the robot"""
+        message = f"Hello from {{ robot_name }}!"
+
+        {% if has_motors -%}
+        message += f"\nI have {{ motors.count }} {{ motors.type }} motors."
+        {% endif -%}
+
+        {% if has_sensors -%}
+        message += f"\nI have {{ sensors | length }} sensor types: {{ sensors.keys() | join(', ') }}."
+        {% endif -%}
+
+        {% if capabilities -%}
+        message += f"\nI can do: {{ capabilities | join(', ') }}."
+        {% endif -%}
+
+        return message
+
+    def robot_info(self) -> dict:
+        """Get robot information as dictionary"""
+        return {
+            'name': self.robot_name,
+            'type': self.robot_type,
+            'has_motors': self.has_motors,
+            'has_sensors': self.has_sensors,
+            'has_actuators': self.has_actuators,
+            {% if has_motors -%}
+            'motor_count': self.motor_count,
+            'motor_channels': {{ motors.channels }},
+            {% endif -%}
+            {% if has_sensors -%}
+            'sensors': self.sensors,
+            {% endif -%}
+            {% if capabilities -%}
+            'capabilities': self.capabilities,
+            {% endif -%}
+            'generated_at': "{{ generation_timestamp }}"
+        }
+
+def main():
+    """Simple test of the hello world class"""
+    robot = {{ robot_name_camel }}Hello(debug=True)
+
+    print("=" * 50)
+    print(robot.say_hello())
+    print("=" * 50)
+
+    print("\nRobot Info:")
+    info = robot.robot_info()
+    for key, value in info.items():
+        print(f"  {key}: {value}")
+
+if __name__ == "__main__":
+    main()
