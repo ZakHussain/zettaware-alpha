@@ -1,0 +1,130 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* Theme CSS Custom Properties */
+:root {
+  /* Default theme variables (Dark Mode) */
+  --theme-primary: #3B82F6;
+  --theme-primaryHover: #2563EB;
+  --theme-secondary: #6B7280;
+  --theme-accent: #10B981;
+  --theme-background: #111827;
+  --theme-surface: #1F2937;
+  --theme-surfaceHover: #374151;
+  --theme-text: #F9FAFB;
+  --theme-textSecondary: #D1D5DB;
+  --theme-border: #374151;
+  --theme-success: #10B981;
+  --theme-warning: #F59E0B;
+  --theme-error: #EF4444;
+  --theme-sidebar: #111827;
+  --theme-sidebarBorder: #374151;
+  --theme-sidebarText: #F9FAFB;
+  --theme-sidebarTextSecondary: #9CA3AF;
+  --theme-chatBg: #F9FAFB;
+  --theme-chatUserBg: #3B82F6;
+  --theme-chatAssistantBg: #FFFFFF;
+}
+
+/* Custom scrollbar styles */
+.custom-scrollbar {
+  scrollbar-width: thin;
+  scrollbar-color: rgba(156, 163, 175, 0.5) transparent;
+}
+
+.custom-scrollbar::-webkit-scrollbar {
+  width: 6px;
+}
+
+.custom-scrollbar::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.custom-scrollbar::-webkit-scrollbar-thumb {
+  background-color: rgba(156, 163, 175, 0.5);
+  border-radius: 3px;
+}
+
+.custom-scrollbar::-webkit-scrollbar-thumb:hover {
+  background-color: rgba(156, 163, 175, 0.7);
+}
+
+/* Additional gray shades for better theme support */
+@layer utilities {
+  .bg-gray-750 {
+    background-color: #2d374a;
+  }
+  
+  .bg-gray-850 {
+    background-color: #1a202e;
+  }
+}
+
+/* Theme transition animations */
+* {
+  transition-property: background-color, border-color, color, fill, stroke;
+  transition-duration: 200ms;
+  transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* Ensure smooth theme transitions and apply base background */
+html {
+  color-scheme: dark;
+  background-color: var(--theme-background);
+}
+
+[data-theme="corporate-blue"] html {
+  color-scheme: light;
+}
+
+[data-theme="pastel-dreams"] html,
+[data-theme="high-contrast"] html {
+  color-scheme: light; /* Ensure light color scheme for light themes */
+}
+
+/* New theme-aware utility classes */
+@layer utilities {
+  /* Backgrounds */
+  .bg-theme-background { background-color: var(--theme-background); }
+  .bg-theme-surface { background-color: var(--theme-surface); }
+  .bg-theme-surface-hover { background-color: var(--theme-surfaceHover); }
+  .bg-theme-primary { background-color: var(--theme-primary); }
+  .bg-theme-primary-hover { background-color: var(--theme-primaryHover); }
+  .bg-theme-secondary { background-color: var(--theme-secondary); }
+  .bg-theme-accent { background-color: var(--theme-accent); }
+  .bg-theme-success { background-color: var(--theme-success); }
+  .bg-theme-warning { background-color: var(--theme-warning); }
+  .bg-theme-error { background-color: var(--theme-error); }
+  .bg-theme-sidebar { background-color: var(--theme-sidebar); }
+  .bg-theme-chat-bg { background-color: var(--theme-chatBg); }
+  .bg-theme-chat-user-bg { background-color: var(--theme-chatUserBg); }
+  .bg-theme-chat-assistant-bg { background-color: var(--theme-chatAssistantBg); }
+
+  /* Text Colors */
+  .text-theme-text { color: var(--theme-text); }
+  .text-theme-text-secondary { color: var(--theme-textSecondary); }
+  .text-theme-primary { color: var(--theme-primary); }
+  .text-theme-secondary { color: var(--theme-secondary); }
+  .text-theme-accent { color: var(--theme-accent); }
+  .text-theme-success { color: var(--theme-success); }
+  .text-theme-warning { color: var(--theme-warning); }
+  .text-theme-error { color: var(--theme-error); }
+  .text-theme-sidebar-text { color: var(--theme-sidebarText); }
+  .text-theme-sidebar-text-secondary { color: var(--theme-sidebarTextSecondary); }
+
+  /* Borders */
+  .border-theme-border { border-color: var(--theme-border); }
+  .border-theme-sidebar-border { border-color: var(--theme-sidebarBorder); }
+  .border-theme-primary { border-color: var(--theme-primary); }
+  .border-theme-success { border-color: var(--theme-success); }
+  .border-theme-warning { border-color: var(--theme-warning); }
+  .border-theme-error { border-color: var(--theme-error); }
+
+  /* Rings */
+  .ring-theme-primary { --tw-ring-color: var(--theme-primary); }
+}
+
+[data-theme="high-contrast"] html {
+  color-scheme: light;
+}

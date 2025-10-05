@@ -1,0 +1,195 @@
+# ZettaWare α - Feature Implementation Breakdown
+
+## SYSTEM OVERVIEW
+- react + typescript app built with vite
+- selectable crew endpoints
+- document processing
+
+## CORE ARCHITECTURE
+
+### State Management
+- ** Zustand**: Primary state management (app.store.ts, theme.store.ts)
+- ** React Query**: Server state and caching (@tanstack/react-query)
+- ** Persistence**: Theme preference saved to localStorage
+
+### API Layer
+- **Contract-based architecture**: Interfaces define API contracts.
+- **Adapter pattern**: CrewAI contracts.
+- **Service Layer**: CrewService and DocumentService orchestrate operations
+- **Error Handling**: Custom APIError class with api-client
+
+### Component Structure
+- **Layout**: Sidebar + TabNavigation + dynamic content areas
+- **Modular**: Each major feature has dedicated interface components
+- **Shared UI**: Reusable components (ThemeSelector, ColorPicker)
+
+## FEATURE IMPLEMENTATIONS
+
+### 1. MULTI-CREW SYSTEM
+**Location**: src/api/, src/config/crews.config.ts, src/components/crews/
+
+**Implementation**:
+- Three specialized AI crews: Arduino, TankBot, Coding
+- Each crew has multiple endpoints with specific capabilities
+- Dynamic crew selection with health monitoring
+- Real-time status indicators (healthy/degraded/unhealthy)
+- Automatic health checks every 30 seconds
+
+**Key Files**:
+- CrewService: Manages crew communications
+- CrewAIAdapter: Handles HTTP requests to crew APIs
+- CrewInterface: UI for crew management and selection
+- CrewEndpointViewerModal: Detailed API documentation viewer
+
+**Crew Capabilities**:
+- Arduino Crew: Hardware analysis, component identification, Arduino code generation
+- TankBot Crew: Robotics code generation, path planning, sensor integration
+- Coding Crew: General code generation, code review, optimization
+
+### 2. DYNAMIC ENDPOINT SYSTEM
+**Location**: src/config/endpoints.config.ts, src/components/crews/CrewEndpointViewerModal.tsx
+
+**Implementation**:
+- Comprehensive endpoint documentation with request/response schemas
+- Smart example generation based on parameter types
+- Copy-to-clipboard functionality for API examples
+- Method-specific color coding (GET/POST/PUT/DELETE)
+- Usage descriptions and when-to-use guidance
+
+**Features**:
+- Auto-generated request examples with realistic data
+- Parameter documentation with type information
+- Response structure documentation
+- Visual API explorer with professional presentation
+
+### 3. CHAT INTERFACE
+**Location**: src/components/chat/, src/hooks/useCrewChat.ts
+
+**Implementation**:
+- Real-time messaging with typing indicators
+- Markdown rendering with syntax highlighting
+- Message metadata (execution time, token usage, model info)
+- Persistent message history during session
+- Copy functionality for code blocks
+
+**Key Features**:
+- ReactMarkdown for rich text rendering
+- Syntax highlighting via react-syntax-highlighter
+- Message roles: user, assistant, system
+- Crew-specific context and routing
+- Error handling with user feedback
+
+### 8. RESPONSIVE LAYOUT SYSTEM
+**Location**: src/components/layout/, src/components/ui/
+
+**Implementation**:
+- Collapsible sidebar with state persistence
+- Tab-based navigation (Chat, Documents, Schematics, Crews)
+- Responsive grid layouts for different screen sizes
+- Custom scrollbars with consistent styling
+- Mobile-first design principles
+
+## TECHNICAL SPECIFICATIONS
+
+### Dependencies
+**Core**:
+- React 18.3.1 + TypeScript for type safety
+- Vite for fast development and building
+- Tailwind CSS for utility-first styling
+
+**State & Data**:
+- Zustand 5.0.8 for lightweight state management
+- React Query 5.87.4 for server state and caching
+- React Dropzone 14.3.8 for file handling
+
+**UI & Rendering**:
+- Lucide React 0.344.0 for consistent icons
+- React Markdown 10.1.0 for rich text rendering
+- React Syntax Highlighter 15.6.6 for code display
+- CLSX 2.1.1 for conditional class names
+
+### Performance Optimizations
+- Lazy loading for non-critical components
+- Debounced API calls to prevent excessive requests
+- Memoized theme calculations and color transformations
+- Efficient re-rendering with proper dependency arrays
+- Request caching and automatic retry logic
+
+### Error Handling
+- Global error boundaries for graceful failure recovery
+- API error classification with user-friendly messages
+- Network failure detection and retry mechanisms
+- Validation for user inputs and file uploads
+- Graceful degradation when services are unavailable
+
+### Accessibility
+- High contrast theme option for vision accessibility
+- Keyboard navigation support throughout interface
+- ARIA labels and semantic HTML structure
+- Screen reader compatible status announcements
+- Color-blind friendly palette choices
+
+
+# DATA FLOW PATTERNS
+
+### Request Flow
+1. User action in UI component
+2. Hook captures action and validates input
+3. Service layer formats request for appropriate adapter
+4. Adapter handles HTTP communication with external APIs
+5. Response processed and stored in React Query cache
+6. UI updates automatically via reactive subscriptions
+
+### State Updates
+1. User interaction triggers store action
+2. Zustand updates relevant state slice
+3. Components re-render based on subscribed state
+4. Side effects (like theme application) execute automatically
+5. Persistence layer saves critical state to localStorage
+
+### Crew API Architecure
+
+the crew system follow a Contract-based architecture with three layers. 
+1. contract layer (crew.contract.ts)
+2. adapter layer (crewai.adapter.ts)
+3. service layer (crew.service.ts)
+
+1. Contract layer -
+* Defines interfaces that standardize communication.
+
+- CrewContract: interface specifies methods all crew Implementations must provide.
+- ProcessRequest/ProcessResponse: define message structure.
+- HealthStatus: standardize health montoring.
+
+2. Adapter Layer -
+* Implement the contract for each crew type:
+
+- Transform requests form generic format to crew-specific payloads
+- Handles crew-specific logic for different AI Groups -- Crew for Arduino vs crews  for Transbot vs crews for so101 arms.
+- Normalizes reponses back to standard format
+- Make actual HTTP calls via APIClient utility
+
+3. Service Layer
+* orchestrates operations:
+- manages multiple adapters via map
+- routes requests to correct adapter based on crew type
+- provides unified interfaces for UI components to interact with any crew.
+
+Data Flow Example
+
+  When a user sends a message to Arduino crew:
+
+  1. UI Component → calls useCrewChat hook
+  2. Hook → calls crewService.sendMessage('arduino', 'generate_sketch', ...)
+  3. Service → retrieves Arduino adapter, calls adapter.sendMessage()
+  4. Adapter →
+    - Transforms to Arduino-specific payload (lines 35-47)
+    - Makes HTTP POST to crew endpoint
+    - Formats Arduino response with code, libraries, pin connections (lines 125-136)
+  5. Response → flows back through layers to UI
+
+  This architecture allows:
+  - Easy addition of new crews - just create new adapter implementing the contract
+  - Consistent API for UI regardless of crew differences
+  - Crew-specific logic isolation in adapters
+  - Centralized management in service layer
